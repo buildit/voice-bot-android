@@ -8,3 +8,15 @@
 /captures
 .externalNativeBuild
 /.idea
+app/release
+
+#amplify
+amplify
+build/
+dist/
+node_modules/
+aws-exports.js
+app/src/main/res/raw/awsconfiguration.json
+app/src/main/res/raw/amplifyconfiguration.json
+amplify-gradle-config.json
+amplifyxc.config

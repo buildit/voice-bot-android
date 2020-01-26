@@ -91,7 +91,7 @@
                         android:scaleType="fitCenter"
                         android:id="@+id/btn_chat_submit"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_send_white_24dp"
+                        android:src="@drawable/ic_mic_white_24dp"
                         android:background="@drawable/button_submit_bg"
                         android:padding="12dp"
                         tools:ignore="RtlHardcoded" />

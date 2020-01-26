@@ -7,6 +7,20 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/Users/ha20107114/work/current/usbank-mvp/com.buildit.mark.android.keystore')
+            storePassword '123456'
+            keyAlias = 'key0'
+            keyPassword '123456'
+        }
+        release {
+            storeFile file('/Users/ha20107114/work/current/usbank-mvp/com.buildit.mark.android.keystore')
+            storePassword '123456'
+            keyAlias = 'key0'
+            keyPassword '123456'
+        }
+    }
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.buildit.mark.android"
@@ -16,6 +30,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        signingConfig signingConfigs.debug
     }
     buildTypes {
         debug {
