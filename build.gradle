@@ -47,7 +47,7 @@ ext {
     rxandroidVersion = '2.0.1'
     butterKnifeVersion = '10.0.0'
     roomDatabaseVersion = '1.1.1'
-    placeholderviewVersion = '0.6.1'
+    placeholderviewVersion = '0.7.3'
     debugDBVersion = '1.0.3'
     timberVersion = '4.6.0'
 

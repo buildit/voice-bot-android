@@ -36,14 +36,26 @@
                     android:layout_alignParentTop="true"
                     />
             </RelativeLayout>
-            <LinearLayout
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:orientation="vertical"
+                android:fillViewport="true"
+                android:id="@+id/messages_scroll_container"
+                android:paddingVertical="10dp"
                 android:layout_weight="1"
+            >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
                 >
-
-            </LinearLayout>
+                    <com.mindorks.placeholderview.PlaceHolderView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/messages_list_view"
+                    />
+                </LinearLayout>
+            </ScrollView>
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:orientation="horizontal"

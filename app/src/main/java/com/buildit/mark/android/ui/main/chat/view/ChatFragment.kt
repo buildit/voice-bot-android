@@ -6,11 +6,13 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
+import android.widget.ScrollView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobileconnectors.lex.interactionkit.InteractionClient
 import com.amazonaws.mobileconnectors.lex.interactionkit.config.InteractionConfig
@@ -25,6 +27,7 @@ import com.buildit.mark.android.util.ScreenUtils.dpToPx
 import com.buildit.mark.android.util.ScreenUtils.getScreenHeight
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
+import com.mindorks.placeholderview.PlaceHolderView
 import kotlinx.android.synthetic.main.fragment_chat.*
 import javax.inject.Inject
 
@@ -41,6 +44,8 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         }
     }
 
+    private lateinit var messagesListPlaceholder: PlaceHolderView
+    private lateinit var chatScrollContainer: ScrollView
     private lateinit var inputTextMessage: String
     private lateinit var voiceInputContainer: MaterialCardView
     private lateinit var textInputContainer: MaterialCardView
@@ -72,10 +77,39 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         super.onViewCreated(view, savedInstanceState)
         initView()
         clipChatContainerEdges()
+        setupPlaceholderView()
         setLexConfig()
         setupListeners()
         presenter.onAttach(this)
         presenter.onViewPrepared(voiceBtn, lexInteractionClient)
+//        chatScrollContainer.postDelayed({
+//            chatScrollContainer.scrollTo(0, chatScrollContainer.bottom + 250)
+//        }, 2000)
+    }
+
+    private fun setupPlaceholderView() {
+        context?. let {
+            messagesListPlaceholder.builder
+                    .setHasFixedSize(false)
+                    .setItemViewCacheSize(10)
+                    .setLayoutManager(LinearLayoutManager(context,
+                            LinearLayoutManager.VERTICAL, false))
+            messagesListPlaceholder.addView(TextMessageView(it, "Hi, I'm Jeremy, " +
+                    "U.S. Bank's Digital Assistant. How can I help you now?",
+                    isUserMessage = false, isAvatarVisible = false))
+            messagesListPlaceholder.addView(
+                SuggestionMessageView(
+                    it,
+                    "Do you want to pay these bills now?",
+                    isUserMessage = false,
+                    isAvatarVisible = false,
+                    suggestions = ""
+                )
+            )
+            messagesListPlaceholder.addView(TextMessageView(it, "Hi, I'm Jeremy, " +
+                    "U.S. Bank's Digital Assistant. How can I help you now?",
+                    isUserMessage = false, isAvatarVisible = false))
+        }
     }
 
     private fun initView() {
@@ -86,6 +120,8 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         chatContainer = chat_container
         textInputContainer = input_text_container
         voiceInputContainer = input_voice_container
+        chatScrollContainer = messages_scroll_container
+        messagesListPlaceholder = messages_list_view
     }
 
     private fun clipChatContainerEdges() {

@@ -117,6 +117,5 @@ dependencies {
     implementation ("com.amazonaws:aws-android-sdk-lex:$rootProject.awsVersion@aar") { transitive=true }
     implementation ("com.amazonaws:aws-android-sdk-mobile-client:$rootProject.awsVersion@aar") { transitive=true }
 
-    implementation "com.github.stfalcon:chatkit:$rootProject.chatKitVersion"
     implementation "com.airbnb.android:lottie:$rootProject.lottieVersion"
 }

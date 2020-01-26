@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_marginBottom="15dp"
+    android:id="@+id/message_container"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:layout_width="50dp"
+        android:scaleType="fitStart"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="10dp"
+        android:id="@+id/message_avatar"
+        android:src="@drawable/mark_sm"
+    />
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:id="@+id/message_text"
+    />
+</LinearLayout>
