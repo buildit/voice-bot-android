@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center"
+    android:id="@+id/itemContainer"
+    android:orientation="vertical"
+    android:paddingBottom="4dp"
+    android:paddingTop="10dp">
+
+    <ImageView
+        android:id="@+id/itemIcon"
+        android:layout_width="24dp"
+        android:layout_marginBottom="10dp"
+        android:layout_height="24dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_rabbit" />
+
+    <TextView
+        android:id="@+id/itemTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:textColor="@color/tab_fg"
+        android:textSize="12sp"/>
+</LinearLayout>
