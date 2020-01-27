@@ -1,0 +1,40 @@
+{
+  "title": "Great, let's get started! The best way to avoid late fees is to autopay recurring bills.",
+  "subtitle": "Based on your transaction history, I found the bills that I can autopay for you.",
+  "bills": [
+    {
+      "biller": "Edison Electricity",
+      "billName": "Con Edison Electricity",
+      "billImage": "https://power2switch.com/static/css/images/utility/coned_logo.jpg",
+      "subtitle": "Due on the 2nd of very month",
+      "billAmount": "Approx $72.90"
+    },
+    {
+      "biller": "Crunch Fitness",
+      "billName": "Crunch Fitness",
+      "billImage": "https://customercarecontacts.com/wp-content/uploads/2017/10/crunch-fitness.jpg",
+      "subtitle": "Due on the 12th of very month",
+      "billAmount": "$20.00"
+    },
+    {
+      "biller": "AMEX",
+      "billName": "Credit Card 5342",
+      "billImage": "https://www.usbank.com/dam/images/rps/card5.png",
+      "subtitle": "Due on the 12th of very month",
+      "billAmount": "Approx $1,203.21"
+    },
+    {
+      "biller": "Tall Grass",
+      "billName": "Tall Grass Golf Course",
+      "billImage": "https://cdn.cybergolf.com/images/1596/Tallgrass-CC-Logo-NEW-JPG.jpg",
+      "subtitle": "Variable, Due on the 12th of very month",
+      "billAmount": "$410.00"
+    }
+  ],
+  "suggestion": "Do you want me to set an autopay for these bills?",
+  "suggestedActions": [
+    "Yes",
+    "Remind me later",
+    "No"
+  ]
+}

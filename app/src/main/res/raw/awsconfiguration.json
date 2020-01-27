@@ -1,0 +1,27 @@
+{
+    "UserAgent": "aws-amplify-cli/0.1.0",
+    "Version": "0.1.0",
+    "IdentityManager": {
+        "Default": {}
+    },
+    "CredentialsProvider": {
+        "CognitoIdentity": {
+            "Default": {
+                "PoolId": "eu-west-1:15c3db9e-0734-45b0-aa1e-e24ece82955a",
+                "Region": "eu-west-1"
+            }
+        }
+    },
+    "Auth": {
+        "Default": {
+            "authenticationFlowType": "USER_SRP_AUTH"
+        }
+    },
+    "Lex": {
+        "BookTrip_dev": {
+            "Name": "BookTrip_dev",
+            "Alias": "$LATEST",
+            "Region": "eu-west-1"
+        }
+    }
+}

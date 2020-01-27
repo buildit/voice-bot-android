@@ -12,6 +12,4 @@ class BillsInteractor @Inject internal constructor(preferenceHelper: PreferenceH
                                                    apiHelper: ApiHelper) :
         BaseInteractor(preferenceHelper, apiHelper), BillsMVPInteractor {
 
-    override fun getBillList() = apiHelper.getBillApiCall()
-
 }

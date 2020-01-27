@@ -8,6 +8,4 @@ import com.buildit.mark.android.ui.base.view.MVPView
  */
 interface BillsMVPView : MVPView {
 
-    fun displayBillList(bills: List<Bill>?) : Unit?
-
 }

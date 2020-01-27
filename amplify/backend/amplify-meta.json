@@ -1,0 +1,52 @@
+{
+    "providers": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-buildit-mark-android-dev-201409-authRole",
+            "UnauthRoleArn": "arn:aws:iam::006393696278:role/amplify-buildit-mark-android-dev-201409-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::006393696278:role/amplify-buildit-mark-android-dev-201409-authRole",
+            "Region": "eu-west-1",
+            "DeploymentBucketName": "amplify-buildit-mark-android-dev-201409-deployment",
+            "UnauthRoleName": "amplify-buildit-mark-android-dev-201409-unauthRole",
+            "StackName": "amplify-buildit-mark-android-dev-201409",
+            "StackId": "arn:aws:cloudformation:eu-west-1:006393696278:stack/amplify-buildit-mark-android-dev-201409/524124e0-404a-11ea-a2a0-0272ba7477a4",
+            "AmplifyAppId": "d1ltd3tpoh7ws0"
+        }
+    },
+    "auth": {
+        "cognito98e86b46": {
+            "service": "Cognito",
+            "providerPlugin": "awscloudformation",
+            "providerMetadata": {
+                "s3TemplateURL": "https://s3.amazonaws.com/amplify-buildit-mark-android-dev-201409-deployment/amplify-cfn-templates/auth/cognito98e86b46-cloudformation-template.yml",
+                "logicalId": "authcognito98e86b46"
+            },
+            "lastPushTimeStamp": "2020-01-26T14:49:33.252Z",
+            "output": {
+                "IdentityPoolId": "eu-west-1:15c3db9e-0734-45b0-aa1e-e24ece82955a",
+                "IdentityPoolName": "buildit_mark_android_identitypool_91cf4094__dev"
+            },
+            "lastPushDirHash": "gZziH500capZmxlfW8oXh1F9XVA="
+        }
+    },
+    "interactions": {
+        "builditmarkandroid": {
+            "service": "Lex",
+            "providerPlugin": "awscloudformation",
+            "build": true,
+            "lastBuildTimeStamp": "2020-01-26T14:47:45.001Z",
+            "lastPackageTimeStamp": "2020-01-26T14:47:45.041Z",
+            "distZipFilename": "builditmarkandroid-684e6e67636546455051-build.zip",
+            "providerMetadata": {
+                "s3TemplateURL": "https://s3.amazonaws.com/amplify-buildit-mark-android-dev-201409-deployment/amplify-cfn-templates/interactions/builditmarkandroid-cloudformation-template.json",
+                "logicalId": "interactionsbuilditmarkandroid"
+            },
+            "lastPushTimeStamp": "2020-01-26T14:49:33.253Z",
+            "output": {
+                "FunctionArn": "arn:aws:lambda:eu-west-1:006393696278:function:buildit_mark-android_cfnlambda_a38fdf90-dev",
+                "Region": "eu-west-1",
+                "BotName": "BookTrip_dev"
+            },
+            "lastPushDirHash": "i3q4+iFBz6m4LaYELQyb74QUPeg="
+        }
+    }
+}

@@ -18,7 +18,8 @@ class SuggestionMessageView(private val context: Context,
                             private val message: String,
                             private val isUserMessage: Boolean,
                             private val isAvatarVisible: Boolean,
-                            private val suggestions: String) : android.view.View.OnClickListener {
+                            private val suggestions: List<String>)
+    : android.view.View.OnClickListener {
 
     override fun onClick(p0: android.view.View?) {
         if (p0 is TextView) {
@@ -63,16 +64,16 @@ class SuggestionMessageView(private val context: Context,
             messageContainer.layoutDirection = LinearLayout.LAYOUT_DIRECTION_RTL
             messageText.textAlignment = TextView.TEXT_ALIGNMENT_TEXT_END
         }
-        val labels: List<String> = listOf("Yes", "No", "Remind me later", "Yes", "No", "Remind me later")
-        for (label in labels) {
+        suggestionsContainer.removeAllViews()
+        for (label in suggestions) {
             val textView = TextView(context)
             textView.text = label
             textView.setTextColor(ContextCompat.getColor(context, R.color.black_effective))
             textView.background = ContextCompat.getDrawable(context, R.drawable.chip_rounded_grey_bg)
-            textView.setPadding(dpToPx(10F), dpToPx(5F), dpToPx(10F), dpToPx(5F))
+            textView.setPadding(dpToPx(15F), dpToPx(5F), dpToPx(15F), dpToPx(5F))
             suggestionsContainer.addView(textView)
             val lp = textView.layoutParams as ViewGroup.MarginLayoutParams
-            lp.setMargins(0, 0, dpToPx(15F), 0)
+            lp.setMargins(0, 0, dpToPx(10F), 0)
             textView.layoutParams = lp
             textView.setOnClickListener(this)
 

@@ -1,6 +1,7 @@
 package com.buildit.mark.android.ui.main.chat.view
 
 import android.content.Context
+import android.graphics.Typeface
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -38,6 +39,8 @@ class TextMessageView(private val context: Context,
             var drawable = R.drawable.mark_sm
             if (isUserMessage) {
                 drawable = R.drawable.ic_person_primary_24dp
+            } else {
+                messageText.setTypeface(messageText.typeface, Typeface.BOLD)
             }
             messageAvatar.setImageDrawable(ContextCompat.getDrawable(context, drawable))
         } else {

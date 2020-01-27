@@ -16,17 +16,5 @@ class BillsPresenter<V : BillsMVPView, I : BillsMVPInteractor> @Inject construct
         BasePresenter<V, I>(interactor = interactor, schedulerProvider = schedulerProvider,
                 compositeDisposable = compositeDisposable), BillsMVPPresenter<V, I> {
 
-    override fun onViewPrepared() {
-//        getView()?.showProgress()
-//        interactor?.let {
-//            it.getBillList()
-//                .compose(schedulerProvider.ioToMainObservableScheduler())
-//                .subscribe { billResponse ->
-//                    getView()?.let { it ->
-//                        it.hideProgress()
-//                        it.displayBillList(billResponse.data)
-//                    }
-//                }
-//        }
-    }
+    override fun onViewPrepared() {}
 }

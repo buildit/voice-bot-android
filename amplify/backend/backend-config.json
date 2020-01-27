@@ -1,0 +1,15 @@
+{
+	"auth": {
+		"cognito98e86b46": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation"
+		}
+	},
+	"interactions": {
+		"builditmarkandroid": {
+			"service": "Lex",
+			"providerPlugin": "awscloudformation",
+			"build": true
+		}
+	}
+}

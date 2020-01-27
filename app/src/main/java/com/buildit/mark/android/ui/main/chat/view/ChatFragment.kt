@@ -2,14 +2,12 @@ package com.buildit.mark.android.ui.main.chat.view
 
 import android.content.Context
 import android.graphics.Outline
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
 import android.widget.ScrollView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,14 +17,18 @@ import com.amazonaws.mobileconnectors.lex.interactionkit.config.InteractionConfi
 import com.amazonaws.mobileconnectors.lex.interactionkit.ui.InteractiveVoiceView
 import com.amazonaws.regions.Regions
 import com.buildit.mark.android.R
+import com.buildit.mark.android.data.database.repository.bills.BillsResponse
 import com.buildit.mark.android.ui.base.view.BaseDialogView
 import com.buildit.mark.android.ui.main.bills.interactor.ChatMVPInteractor
 import com.buildit.mark.android.ui.main.bills.presenter.ChatMVPPresenter
 import com.buildit.mark.android.ui.main.bills.view.ChatMVPView
+import com.buildit.mark.android.util.FileUtils.loadJSONFromAsset
 import com.buildit.mark.android.util.ScreenUtils.dpToPx
 import com.buildit.mark.android.util.ScreenUtils.getScreenHeight
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
+import com.google.gson.GsonBuilder
+import com.google.gson.internal.`$Gson$Types`
 import com.mindorks.placeholderview.PlaceHolderView
 import kotlinx.android.synthetic.main.fragment_chat.*
 import javax.inject.Inject
@@ -89,26 +91,31 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
 
     private fun setupPlaceholderView() {
         context?. let {
+            val bills: String = loadJSONFromAsset(it, "bills.json")
+            val builder = GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+            val gson = builder.create()
+            val type = `$Gson$Types`.newParameterizedTypeWithOwner(
+                    null, BillsResponse::class.java)
+            val response = gson.fromJson<BillsResponse>(bills, type)
+
             messagesListPlaceholder.builder
                     .setHasFixedSize(false)
                     .setItemViewCacheSize(10)
                     .setLayoutManager(LinearLayoutManager(context,
                             LinearLayoutManager.VERTICAL, false))
-            messagesListPlaceholder.addView(TextMessageView(it, "Hi, I'm Jeremy, " +
-                    "U.S. Bank's Digital Assistant. How can I help you now?",
+            messagesListPlaceholder.addView(TextMessageView(it, "Great, let's started! " +
+                    "The best way to avoid late fees is to autopay recurring bills.",
+                    isUserMessage = false, isAvatarVisible = true))
+            messagesListPlaceholder.addView(TextMessageView(it, "Based on your transaction" +
+                    " history, I found these bills that I can autopay for you.",
                     isUserMessage = false, isAvatarVisible = false))
-            messagesListPlaceholder.addView(
-                SuggestionMessageView(
-                    it,
-                    "Do you want to pay these bills now?",
+            messagesListPlaceholder.addView(BillListMessageView(it, response))
+            messagesListPlaceholder.addView(SuggestionMessageView(it,
+                    "Do you want me to set up autopay for these bills?",
                     isUserMessage = false,
                     isAvatarVisible = false,
-                    suggestions = ""
-                )
-            )
-            messagesListPlaceholder.addView(TextMessageView(it, "Hi, I'm Jeremy, " +
-                    "U.S. Bank's Digital Assistant. How can I help you now?",
-                    isUserMessage = false, isAvatarVisible = false))
+                    suggestions = response.suggestedActions
+                ))
         }
     }
 

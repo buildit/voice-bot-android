@@ -28,10 +28,6 @@ class BillsFragment : BaseFragment(), BillsMVPView {
     }
 
     @Inject
-    internal lateinit var billAdapter: BillsAdapter
-    @Inject
-    internal lateinit var layoutManager: LinearLayoutManager
-    @Inject
     internal lateinit var presenter: BillsMVPPresenter<BillsMVPView, BillsMVPInteractor>
 
 
@@ -45,15 +41,7 @@ class BillsFragment : BaseFragment(), BillsMVPView {
     }
 
     override fun setUp() {
-        layoutManager.orientation = LinearLayoutManager.VERTICAL
-        bill_recycler_view.layoutManager = layoutManager
-        bill_recycler_view.itemAnimator = DefaultItemAnimator()
-        bill_recycler_view.adapter = billAdapter
         presenter.onViewPrepared()
-    }
-
-    override fun displayBillList(bills: List<Bill>?) = bills?.let {
-        billAdapter.addBlogsToList(it)
     }
 
     override fun onDestroyView() {
