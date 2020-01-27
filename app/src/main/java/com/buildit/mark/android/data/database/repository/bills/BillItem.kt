@@ -22,5 +22,9 @@ data class BillItem(
 
     @Expose
     @SerializedName("billAmount")
-    var billAmount: String
+    var billAmount: String,
+
+    @Expose
+    @SerializedName("isSelected")
+    var isSelected: Boolean = true
 )

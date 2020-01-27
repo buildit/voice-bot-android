@@ -13,7 +13,7 @@ import com.mindorks.placeholderview.annotations.*
 @NonReusable
 @Layout(R.layout.bill_list_message_view)
 class BillListMessageView(private val context: Context,
-                      private val response: BillsResponse) {
+                          private val response: BillsResponse): BillItemSelectionListener {
 
     @View(R.id.bill_list_container)
     lateinit var billListContainer: LinearLayout
@@ -28,18 +28,34 @@ class BillListMessageView(private val context: Context,
     @Position
     var position: Int = 0
 
-    @SuppressLint("SetTextI18n")
     @Resolve
     public fun onResolved() {
-        billCount.text = "${response.bills.count()} bills"
         billListPlaceholder.builder
                 .setHasFixedSize(true)
                 .setItemViewCacheSize(10)
                 .setLayoutManager(LinearLayoutManager(
                         context, LinearLayoutManager.VERTICAL, false))
         billListPlaceholder.removeAllViews()
-        for (bill in response.bills) {
-            billListPlaceholder.addView(BillItemMessageView(context, bill))
+        for ((index, value) in response.bills.withIndex()) {
+            value.isSelected = true
+            billListPlaceholder.addView(BillItemMessageView(context,
+                    value, index, this))
         }
+        updateSelectedCount()
     }
+
+    override fun onSelectBill(position: Int, isSelected: Boolean) {
+        response.bills[position].isSelected = isSelected
+        updateSelectedCount()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateSelectedCount() {
+        var count = 0
+        for (bill in response.bills) {
+            if (bill.isSelected) count += 1
+        }
+        billCount.text = "$count bills selected"
+    }
+
 }

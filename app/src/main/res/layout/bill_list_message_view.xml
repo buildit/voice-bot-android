@@ -20,13 +20,34 @@
         android:id="@+id/bill_list_container"
         android:orientation="vertical"
     >
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/bill_list_count"
-            android:textStyle="bold"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical"
             android:layout_marginBottom="10dp"
-        />
+        >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:id="@+id/bill_list_count"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textStyle="bold"
+            />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="@string/tap_to_select"
+                android:id="@+id/bill_list_select_label"
+            />
+        </LinearLayout>
         <com.mindorks.placeholderview.PlaceHolderView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -14,7 +14,9 @@ import com.mindorks.placeholderview.annotations.*
 @NonReusable
 @Layout(R.layout.bill_message_item_view)
 class BillItemMessageView(private val context: Context,
-                          private val bill: BillItem) {
+                          private val bill: BillItem,
+                          private val index: Int,
+                          private val selectionListener: BillItemSelectionListener) {
 
     @View(R.id.bill_item_img)
     lateinit var billItemImg: ImageView
@@ -35,8 +37,6 @@ class BillItemMessageView(private val context: Context,
     @Position
     var position: Int = 0
 
-    var isSelected: Boolean = false
-
     @SuppressLint("SetTextI18n")
     @Resolve
     public fun onResolved() {
@@ -50,13 +50,14 @@ class BillItemMessageView(private val context: Context,
 
     @Click(R.id.bill_item_container)
     fun onClickContainer() {
-        isSelected = !isSelected
+        bill.isSelected = !bill.isSelected
         toggleSelectionStyles()
+        selectionListener.onSelectBill(index, bill.isSelected)
     }
 
     private fun toggleSelectionStyles() {
         var drawable = R.drawable.input_rounded_white_bg
-        if (isSelected) {
+        if (bill.isSelected) {
             drawable = R.drawable.input_rounded_selected_bg
         }
         billItemContent.background = ContextCompat.getDrawable(context, drawable)
