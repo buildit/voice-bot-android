@@ -1,9 +1,11 @@
 package com.buildit.mark.android.ui.main.chat.view
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Outline
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.ScrollView
 import androidx.core.content.ContextCompat
@@ -13,7 +15,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobileconnectors.lex.interactionkit.InteractionClient
+import com.amazonaws.mobileconnectors.lex.interactionkit.Response
 import com.amazonaws.mobileconnectors.lex.interactionkit.config.InteractionConfig
+import com.amazonaws.mobileconnectors.lex.interactionkit.continuations.LexServiceContinuation
 import com.amazonaws.mobileconnectors.lex.interactionkit.ui.InteractiveVoiceView
 import com.amazonaws.regions.Regions
 import com.buildit.mark.android.R
@@ -46,6 +50,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         }
     }
 
+    private var lexServiceContinuation: LexServiceContinuation? = null
     private lateinit var messagesListPlaceholder: PlaceHolderView
     private lateinit var chatScrollContainer: ScrollView
     private lateinit var inputTextMessage: String
@@ -84,38 +89,29 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         setupListeners()
         presenter.onAttach(this)
         presenter.onViewPrepared(voiceBtn, lexInteractionClient)
-//        chatScrollContainer.postDelayed({
-//            chatScrollContainer.scrollTo(0, chatScrollContainer.bottom + 250)
-//        }, 2000)
     }
 
     private fun setupPlaceholderView() {
         context?. let {
-            val bills: String = loadJSONFromAsset(it, "bills.json")
-            val builder = GsonBuilder().excludeFieldsWithoutExposeAnnotation()
-            val gson = builder.create()
-            val type = `$Gson$Types`.newParameterizedTypeWithOwner(
-                    null, BillsResponse::class.java)
-            val response = gson.fromJson<BillsResponse>(bills, type)
 
             messagesListPlaceholder.builder
                     .setHasFixedSize(false)
                     .setItemViewCacheSize(10)
                     .setLayoutManager(LinearLayoutManager(context,
                             LinearLayoutManager.VERTICAL, false))
-            messagesListPlaceholder.addView(TextMessageView(it, "Great, let's started! " +
-                    "The best way to avoid late fees is to autopay recurring bills.",
-                    isUserMessage = false, isAvatarVisible = true))
-            messagesListPlaceholder.addView(TextMessageView(it, "Based on your transaction" +
-                    " history, I found these bills that I can autopay for you.",
-                    isUserMessage = false, isAvatarVisible = false))
-            messagesListPlaceholder.addView(BillListMessageView(it, response))
-            messagesListPlaceholder.addView(SuggestionMessageView(it,
-                    "Do you want me to set up autopay for these bills?",
-                    isUserMessage = false,
-                    isAvatarVisible = false,
-                    suggestions = response.suggestedActions
-                ))
+//            messagesListPlaceholder.addView(TextMessageView(it, "Great, let's started! " +
+//                    "The best way to avoid late fees is to autopay recurring bills.",
+//                    isUserMessage = false, isAvatarVisible = true))
+//            messagesListPlaceholder.addView(TextMessageView(it, "Based on your transaction" +
+//                    " history, I found these bills that I can autopay for you.",
+//                    isUserMessage = false, isAvatarVisible = false))
+//            messagesListPlaceholder.addView(BillListMessageView(it, response))
+//            messagesListPlaceholder.addView(SuggestionMessageView(it,
+//                    "Do you want me to set up autopay for these bills?",
+//                    isUserMessage = false,
+//                    isAvatarVisible = false,
+//                    suggestions = response.suggestedActions
+//                ))
         }
     }
 
@@ -144,7 +140,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         btnChatSubmit.setOnClickListener {
             inputTextMessage = userTextInput.text.toString()
             if (inputTextMessage.isNotEmpty()) {
-                presenter.submitTextMessage(inputTextMessage)
+                presenter.submitTextMessage(inputTextMessage, lexServiceContinuation)
             } else {
                 toggleInputMode(false)
                 toggleBtnMode(false)
@@ -159,7 +155,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
             updateInputState(inputTextMessage)
             if (inputTextMessage.isNotEmpty() && event.action == KeyEvent.ACTION_DOWN &&
                     keyCode == KeyEvent.KEYCODE_ENTER) {
-                presenter.submitTextMessage(inputTextMessage)
+                presenter.submitTextMessage(inputTextMessage, lexServiceContinuation)
                 return@OnKeyListener true
             }
             false
@@ -225,5 +221,60 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
     override fun toggleInputMode(isTextEnabled: Boolean) {
         textInputContainer.isVisible = isTextEnabled
         voiceInputContainer.isVisible = !isTextEnabled
+    }
+
+    override fun setLexContinuation(continuation: LexServiceContinuation?) {
+        lexServiceContinuation = continuation
+    }
+
+    override fun handleLexResponse(response: Response?) {
+        response?.textResponse?. let {
+            context?.let {it1 ->
+                messagesListPlaceholder.addView(TextMessageView(it1, it,
+                        isUserMessage = false, isAvatarVisible = true))
+                if (response.intentName.equals("billpayment", true) &&
+                        response.slotToIllicit.equals("billtype", true)) {
+                    addBillListView(it1)
+                } else {
+                    scrollToBottom()
+                }
+            }
+        }
+    }
+
+    private fun addBillListView(context: Context) {
+        val bills: String = loadJSONFromAsset(context, "bills.json")
+        val builder = GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+        val gson = builder.create()
+        val type = `$Gson$Types`.newParameterizedTypeWithOwner(
+                null, BillsResponse::class.java)
+        val response = gson.fromJson<BillsResponse>(bills, type)
+        messagesListPlaceholder.addView(BillListMessageView(context, response))
+        scrollToBottom()
+    }
+
+    private fun scrollToBottom() {
+        //TODO: fix scrolling chat container to bottom when new elements have been added
+        chatScrollContainer.postDelayed({
+            chatScrollContainer.scrollTo(0, chatScrollContainer.bottom + 250)
+        }, 1000)
+    }
+
+    override fun clearTextInput() {
+        userTextInput.setText("")
+        context?. let {
+            val imm = it.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view?.windowToken, 0)
+        }
+    }
+
+    override fun handlerUserResponse(response: String?) {
+        response?. let {
+            context?. let {it1 ->
+                messagesListPlaceholder.addView(TextMessageView(it1, it,
+                        isUserMessage = true, isAvatarVisible = true))
+                scrollToBottom()
+            }
+        }
     }
 }

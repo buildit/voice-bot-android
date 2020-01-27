@@ -9,7 +9,7 @@
     <ImageView
         android:layout_width="50dp"
         android:scaleType="fitStart"
-        android:layout_height="match_parent"
+        android:layout_height="30dp"
         android:layout_marginHorizontal="10dp"
         android:id="@+id/message_avatar"
         android:src="@drawable/mark_sm"

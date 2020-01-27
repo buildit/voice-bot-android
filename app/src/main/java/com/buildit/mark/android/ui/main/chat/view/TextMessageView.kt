@@ -53,6 +53,7 @@ class TextMessageView(private val context: Context,
         if (isUserMessage) {
             messageContainer.layoutDirection = LinearLayout.LAYOUT_DIRECTION_RTL
             messageText.textAlignment = TextView.TEXT_ALIGNMENT_TEXT_END
+            if (isAvatarVisible) messageAvatar.scaleType = ImageView.ScaleType.FIT_END
         }
     }
 }

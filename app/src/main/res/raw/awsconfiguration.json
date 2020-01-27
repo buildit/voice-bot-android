@@ -19,7 +19,7 @@
     },
     "Lex": {
         "BookTrip_dev": {
-            "Name": "BookTrip_dev",
+            "Name": "USBankChatBotMark_dev",
             "Alias": "$LATEST",
             "Region": "eu-west-1"
         }

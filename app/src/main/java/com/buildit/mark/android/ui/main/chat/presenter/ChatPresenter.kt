@@ -22,18 +22,33 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
         BasePresenter<V, I>(interactor = interactor, schedulerProvider = schedulerProvider,
                 compositeDisposable = compositeDisposable), ChatMVPPresenter<V, I> {
 
+    private lateinit var voiceBtn: InteractiveVoiceView
+    private lateinit var lexInteractionClient: InteractionClient
+
     private val TAG = "chatPresenter"
 
-    override fun submitTextMessage(inputTextMessage: String) {
-
+    override fun submitTextMessage(inputTextMessage: String,
+                                   lexServiceContinuation: LexServiceContinuation?) {
+        lexInteractionClient.cancel()
+        if (lexServiceContinuation != null) {
+            lexServiceContinuation.continueWithTextInForAudioOut(inputTextMessage)
+        } else {
+            lexInteractionClient.textInForAudioOut(inputTextMessage,
+                    null, null)
+        }
+        getView()?. let {
+            it.handlerUserResponse(inputTextMessage)
+        }
     }
 
     override fun onViewPrepared(voiceBtn: InteractiveVoiceView,
                                 lexInteractionClient: InteractionClient) {
-        voiceBtn.setInteractiveVoiceListener(this)
-        lexInteractionClient.setAudioPlaybackListener(this)
-        lexInteractionClient.setInteractionListener(this)
-        lexInteractionClient.setMicrophoneListener(this)
+        this.voiceBtn = voiceBtn
+        this.voiceBtn.setInteractiveVoiceListener(this)
+        this.lexInteractionClient = lexInteractionClient
+        this.lexInteractionClient.setAudioPlaybackListener(this)
+        this.lexInteractionClient.setInteractionListener(this)
+        this.lexInteractionClient.setMicrophoneListener(this)
     }
 
     override fun dialogReadyForFulfillment(slots: MutableMap<String, String>?, intent: String?) {
@@ -54,19 +69,24 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
     }
 
     override fun promptUserToRespond(response: Response?, continuation: LexServiceContinuation?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.e(TAG, "Response: ${response?.textResponse}")
+        getView()?.let {
+            it.clearTextInput()
+            it.setLexContinuation(continuation)
+            it.handleLexResponse(response)
+        }
     }
 
     override fun onReadyForFulfillment(response: Response?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.e(TAG, "onReadyForFulfillment:")
     }
 
     override fun onInteractionError(response: Response?, e: java.lang.Exception?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        Log.e(TAG, "onInteractionError:", e)
     }
 
     override fun onAudioPlaybackError(e: java.lang.Exception?) {
-        Log.e(TAG, "Error:", e)
+        Log.e(TAG, "onAudioPlaybackError:", e)
     }
 
     override fun onAudioPlayBackCompleted() {

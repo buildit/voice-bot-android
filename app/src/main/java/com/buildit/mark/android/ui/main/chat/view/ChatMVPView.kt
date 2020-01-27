@@ -1,9 +1,7 @@
 package com.buildit.mark.android.ui.main.bills.view
 
-import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.AudioPlaybackListener
-import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.InteractionListener
-import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.MicrophoneListener
-import com.amazonaws.mobileconnectors.lex.interactionkit.ui.InteractiveVoiceView
+import com.amazonaws.mobileconnectors.lex.interactionkit.Response
+import com.amazonaws.mobileconnectors.lex.interactionkit.continuations.LexServiceContinuation
 import com.buildit.mark.android.ui.base.view.MVPView
 
 /**
@@ -12,4 +10,8 @@ import com.buildit.mark.android.ui.base.view.MVPView
 interface ChatMVPView : MVPView {
     fun toggleBtnMode(isTextEnabled: Boolean)
     fun toggleInputMode(isTextEnabled: Boolean)
+    fun setLexContinuation(continuation: LexServiceContinuation?)
+    fun handleLexResponse(response: Response?)
+    fun clearTextInput()
+    fun handlerUserResponse(response: String?)
 }
