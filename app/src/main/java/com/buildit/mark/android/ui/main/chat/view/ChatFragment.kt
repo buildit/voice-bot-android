@@ -26,13 +26,10 @@ import com.buildit.mark.android.ui.base.view.BaseDialogView
 import com.buildit.mark.android.ui.main.bills.interactor.ChatMVPInteractor
 import com.buildit.mark.android.ui.main.bills.presenter.ChatMVPPresenter
 import com.buildit.mark.android.ui.main.bills.view.ChatMVPView
-import com.buildit.mark.android.util.FileUtils.loadJSONFromAsset
 import com.buildit.mark.android.util.ScreenUtils.dpToPx
 import com.buildit.mark.android.util.ScreenUtils.getScreenHeight
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
-import com.google.gson.GsonBuilder
-import com.google.gson.internal.`$Gson$Types`
 import com.mindorks.placeholderview.PlaceHolderView
 import kotlinx.android.synthetic.main.fragment_chat.*
 import javax.inject.Inject
@@ -41,7 +38,8 @@ import javax.inject.Inject
 /**
  * Created by harshit.laddha on 25/01/2020
  */
-class ChatFragment : BaseDialogView(), ChatMVPView {
+class ChatFragment : BaseDialogView(), ChatMVPView,
+        SuggestionMessageListener, BillItemSelectionListener {
 
     companion object {
 
@@ -50,6 +48,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         }
     }
 
+    private lateinit var billsResponse: BillsResponse
     private var lexServiceContinuation: LexServiceContinuation? = null
     private lateinit var messagesListPlaceholder: PlaceHolderView
     private lateinit var chatScrollContainer: ScrollView
@@ -88,7 +87,9 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         setLexConfig()
         setupListeners()
         presenter.onAttach(this)
-        presenter.onViewPrepared(voiceBtn, lexInteractionClient)
+        context?. let {
+            presenter.onViewPrepared(it, voiceBtn, lexInteractionClient)
+        }
     }
 
     private fun setupPlaceholderView() {
@@ -99,19 +100,6 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
                     .setItemViewCacheSize(10)
                     .setLayoutManager(LinearLayoutManager(context,
                             LinearLayoutManager.VERTICAL, false))
-//            messagesListPlaceholder.addView(TextMessageView(it, "Great, let's started! " +
-//                    "The best way to avoid late fees is to autopay recurring bills.",
-//                    isUserMessage = false, isAvatarVisible = true))
-//            messagesListPlaceholder.addView(TextMessageView(it, "Based on your transaction" +
-//                    " history, I found these bills that I can autopay for you.",
-//                    isUserMessage = false, isAvatarVisible = false))
-//            messagesListPlaceholder.addView(BillListMessageView(it, response))
-//            messagesListPlaceholder.addView(SuggestionMessageView(it,
-//                    "Do you want me to set up autopay for these bills?",
-//                    isUserMessage = false,
-//                    isAvatarVisible = false,
-//                    suggestions = response.suggestedActions
-//                ))
         }
     }
 
@@ -230,11 +218,13 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
     override fun handleLexResponse(response: Response?) {
         response?.textResponse?. let {
             context?.let {it1 ->
+                if (response.dialogState.equals("elicitintent", true)) {
+                    clearPreviousWidgets()
+                }
                 messagesListPlaceholder.addView(TextMessageView(it1, it,
                         isUserMessage = false, isAvatarVisible = true))
-                if (response.intentName.equals("billpayment", true) &&
-                        response.slotToIllicit.equals("billtype", true)) {
-                    addBillListView(it1)
+                if (response.slotToIllicit.equals("billtype", true)) {
+                    addBillListView(it1, response)
                 } else {
                     scrollToBottom()
                 }
@@ -242,14 +232,27 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
         }
     }
 
-    private fun addBillListView(context: Context) {
-        val bills: String = loadJSONFromAsset(context, "bills.json")
-        val builder = GsonBuilder().excludeFieldsWithoutExposeAnnotation()
-        val gson = builder.create()
-        val type = `$Gson$Types`.newParameterizedTypeWithOwner(
-                null, BillsResponse::class.java)
-        val response = gson.fromJson<BillsResponse>(bills, type)
-        messagesListPlaceholder.addView(BillListMessageView(context, response))
+    private fun clearPreviousWidgets() {
+        for (view in messagesListPlaceholder.allViewResolvers) {
+            if (view is SuggestionMessageView || view is BillListMessageView) {
+                messagesListPlaceholder.removeView(view)
+            }
+        }
+    }
+
+    private fun addBillListView(context: Context, response: Response) {
+        messagesListPlaceholder.addView(BillListMessageView(context, billsResponse, this))
+        var message: String = "Do you want me to pay these bills now?"
+        if (!response.intentName.equals("billpayment", true)) {
+            message = "Do you want me to set up autopay for these bills?"
+        }
+        messagesListPlaceholder.addView(SuggestionMessageView(context,
+                message,
+                isUserMessage = false,
+                isAvatarVisible = false,
+                suggestions = billsResponse.suggestedActions,
+                messageCallback = this
+        ))
         scrollToBottom()
     }
 
@@ -276,5 +279,23 @@ class ChatFragment : BaseDialogView(), ChatMVPView {
                 scrollToBottom()
             }
         }
+    }
+
+    override fun setBillList(response: BillsResponse) {
+        billsResponse = response
+    }
+
+    override fun onClickSuggestionPill(suggestion: String) {
+        if (suggestion.equals("yes", true)) {
+            val selected: MutableList<String> = mutableListOf()
+            for (bill in billsResponse.bills) {
+                if (bill.isSelected) selected.add(bill.billName)
+            }
+            presenter.submitTextMessage(selected.joinToString(","), lexServiceContinuation)
+        } else presenter.submitTextMessage(suggestion, lexServiceContinuation)
+    }
+
+    override fun onSelectBill(position: Int, isSelected: Boolean) {
+        billsResponse.bills[position].isSelected = isSelected
     }
 }

@@ -13,7 +13,8 @@ import com.mindorks.placeholderview.annotations.*
 @NonReusable
 @Layout(R.layout.bill_list_message_view)
 class BillListMessageView(private val context: Context,
-                          private val response: BillsResponse): BillItemSelectionListener {
+                          private val response: BillsResponse,
+                          private val dataCallback: BillItemSelectionListener): BillItemSelectionListener {
 
     @View(R.id.bill_list_container)
     lateinit var billListContainer: LinearLayout
@@ -46,6 +47,7 @@ class BillListMessageView(private val context: Context,
 
     override fun onSelectBill(position: Int, isSelected: Boolean) {
         response.bills[position].isSelected = isSelected
+        dataCallback.onSelectBill(position, isSelected)
         updateSelectedCount()
     }
 

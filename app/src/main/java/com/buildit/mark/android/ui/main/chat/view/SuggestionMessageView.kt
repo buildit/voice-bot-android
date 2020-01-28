@@ -1,7 +1,6 @@
 package com.buildit.mark.android.ui.main.chat.view
 
 import android.content.Context
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -18,12 +17,13 @@ class SuggestionMessageView(private val context: Context,
                             private val message: String,
                             private val isUserMessage: Boolean,
                             private val isAvatarVisible: Boolean,
-                            private val suggestions: List<String>)
+                            private val suggestions: List<String>,
+                            private val messageCallback: SuggestionMessageListener)
     : android.view.View.OnClickListener {
 
     override fun onClick(p0: android.view.View?) {
         if (p0 is TextView) {
-            Log.d("onClick", p0.text.toString())
+            messageCallback.onClickSuggestionPill(p0.text.toString())
         }
     }
 

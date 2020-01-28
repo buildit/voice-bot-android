@@ -1,14 +1,19 @@
 package com.buildit.mark.android.ui.main.bills.presenter
 
+import android.content.Context
 import android.util.Log
 import com.amazonaws.mobileconnectors.lex.interactionkit.InteractionClient
 import com.amazonaws.mobileconnectors.lex.interactionkit.Response
 import com.amazonaws.mobileconnectors.lex.interactionkit.continuations.LexServiceContinuation
 import com.amazonaws.mobileconnectors.lex.interactionkit.ui.InteractiveVoiceView
+import com.buildit.mark.android.data.database.repository.bills.BillsResponse
 import com.buildit.mark.android.ui.base.presenter.BasePresenter
 import com.buildit.mark.android.ui.main.bills.interactor.ChatMVPInteractor
 import com.buildit.mark.android.ui.main.bills.view.ChatMVPView
+import com.buildit.mark.android.util.FileUtils
 import com.buildit.mark.android.util.SchedulerProvider
+import com.google.gson.GsonBuilder
+import com.google.gson.internal.`$Gson$Types`
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 import javax.inject.Inject
@@ -41,7 +46,7 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
         }
     }
 
-    override fun onViewPrepared(voiceBtn: InteractiveVoiceView,
+    override fun onViewPrepared(context: Context, voiceBtn: InteractiveVoiceView,
                                 lexInteractionClient: InteractionClient) {
         this.voiceBtn = voiceBtn
         this.voiceBtn.setInteractiveVoiceListener(this)
@@ -49,6 +54,19 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
         this.lexInteractionClient.setAudioPlaybackListener(this)
         this.lexInteractionClient.setInteractionListener(this)
         this.lexInteractionClient.setMicrophoneListener(this)
+        loadBillData(context)
+    }
+
+    private fun loadBillData(context: Context) {
+        val bills: String = FileUtils.loadJSONFromAsset(context, "bills.json")
+        val builder = GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+        val gson = builder.create()
+        val type = `$Gson$Types`.newParameterizedTypeWithOwner(
+                null, BillsResponse::class.java)
+        val response = gson.fromJson<BillsResponse>(bills, type)
+        getView()?.let {
+            it.setBillList(response)
+        }
     }
 
     override fun dialogReadyForFulfillment(slots: MutableMap<String, String>?, intent: String?) {

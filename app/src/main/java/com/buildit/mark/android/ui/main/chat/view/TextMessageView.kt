@@ -39,6 +39,7 @@ class TextMessageView(private val context: Context,
             var drawable = R.drawable.mark_sm
             if (isUserMessage) {
                 drawable = R.drawable.ic_person_primary_24dp
+                messageText.setTypeface(messageText.typeface, Typeface.NORMAL)
             } else {
                 messageText.setTypeface(messageText.typeface, Typeface.BOLD)
             }

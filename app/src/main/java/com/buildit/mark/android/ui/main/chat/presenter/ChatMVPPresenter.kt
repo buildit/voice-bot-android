@@ -1,5 +1,6 @@
 package com.buildit.mark.android.ui.main.bills.presenter
 
+import android.content.Context
 import com.amazonaws.mobileconnectors.lex.interactionkit.InteractionClient
 import com.amazonaws.mobileconnectors.lex.interactionkit.continuations.LexServiceContinuation
 import com.amazonaws.mobileconnectors.lex.interactionkit.listeners.AudioPlaybackListener
@@ -17,6 +18,7 @@ interface ChatMVPPresenter<V : ChatMVPView, I : ChatMVPInteractor> : MVPPresente
         InteractiveVoiceView.InteractiveVoiceListener,
         AudioPlaybackListener, InteractionListener, MicrophoneListener {
 
-    fun onViewPrepared(voiceBtn: InteractiveVoiceView, lexInteractionClient: InteractionClient)
+    fun onViewPrepared(context: Context, voiceBtn: InteractiveVoiceView,
+                       lexInteractionClient: InteractionClient)
     fun submitTextMessage(inputTextMessage: String, lexServiceContinuation: LexServiceContinuation?)
 }
