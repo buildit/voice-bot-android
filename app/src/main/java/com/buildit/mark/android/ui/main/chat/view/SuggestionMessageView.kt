@@ -49,8 +49,13 @@ class SuggestionMessageView(private val context: Context,
 
     @Resolve
     public fun onResolved() {
+        var visibility = android.view.View.VISIBLE
+        if (message.isEmpty()) {
+            visibility = android.view.View.GONE
+        }
         messageText.text = message
         messageAvatar.isVisible = isAvatarVisible
+        messageContainer.visibility = visibility
         if (isAvatarVisible) {
             var drawable = R.drawable.mark_sm
             if (isUserMessage) {

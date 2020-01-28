@@ -20,5 +20,7 @@ interface ChatMVPPresenter<V : ChatMVPView, I : ChatMVPInteractor> : MVPPresente
 
     fun onViewPrepared(context: Context, voiceBtn: InteractiveVoiceView,
                        lexInteractionClient: InteractionClient)
-    fun submitTextMessage(inputTextMessage: String, lexServiceContinuation: LexServiceContinuation?)
+    fun submitTextMessage(inputTextMessage: String,
+                          lexServiceContinuation: LexServiceContinuation?,
+                          hideMessageFromWindow: Boolean)
 }

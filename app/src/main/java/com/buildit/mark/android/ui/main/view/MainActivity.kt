@@ -6,18 +6,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.view.*
+import android.view.Gravity
+import android.view.MenuItem
+import android.view.Window
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.buildit.mark.android.R
-import com.buildit.mark.android.ui.base.view.BaseActivity
-import com.buildit.mark.android.ui.login.view.LoginActivity
-import com.buildit.mark.android.util.extension.removeFragment
-import kotlinx.android.synthetic.main.app_bar_navigation.*
-import javax.inject.Inject
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
@@ -25,19 +19,23 @@ import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobile.client.Callback
 import com.amazonaws.mobile.client.UserStateDetails
-import com.amazonaws.mobile.config.AWSConfiguration
 import com.amazonaws.mobileconnectors.lex.interactionkit.config.InteractionConfig
-import com.google.android.material.tabs.TabLayout
+import com.buildit.mark.android.R
+import com.buildit.mark.android.ui.base.view.BaseActivity
+import com.buildit.mark.android.ui.login.view.LoginActivity
 import com.buildit.mark.android.ui.main.MainPagerAdapter
 import com.buildit.mark.android.ui.main.chat.view.ChatFragment
 import com.buildit.mark.android.ui.main.chat.view.ChatFragmentDataCallback
+import com.buildit.mark.android.util.extension.removeFragment
+import com.google.android.material.tabs.TabLayout
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.app_bar_navigation.*
 import org.json.JSONException
 import org.json.JSONObject
-import java.lang.Exception
+import javax.inject.Inject
 
 
 class MainActivity : BaseActivity(), HasSupportFragmentInjector, ChatFragmentDataCallback {
@@ -133,7 +131,7 @@ class MainActivity : BaseActivity(), HasSupportFragmentInjector, ChatFragmentDat
 
     private fun onTabSelectedListener(position: Int, bottomTab: TabLayout) {
         if (position == 2) {
-            openChatDialog()
+            openChatDialog("Welcome")
             bottomTab.getTabAt(2)?.customView?.isSelected = false
             bottomTab.getTabAt(3)?.customView?.isSelected = true
             bottomTab.setScrollPosition(3, 0F, true)
@@ -141,15 +139,14 @@ class MainActivity : BaseActivity(), HasSupportFragmentInjector, ChatFragmentDat
     }
 
     @SuppressLint("RtlHardcoded")
-    private fun openChatDialog() {
+    private fun openChatDialog(initIntent: String) {
         if (!hasVoicePermissions) {
             requestVoicePermissions()
         }
-        val chatFragment = ChatFragment.newInstance() as DialogFragment
+        val chatFragment = ChatFragment.newInstance(initIntent) as DialogFragment
         chatFragment.isCancelable = false
         chatFragment.dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
         chatFragment.dialog?.window?.setGravity(Gravity.BOTTOM or Gravity.LEFT)
-
         chatFragment.show(supportFragmentManager, "chatFragment")
     }
 

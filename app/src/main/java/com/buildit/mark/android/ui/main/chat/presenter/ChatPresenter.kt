@@ -33,7 +33,8 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
     private val TAG = "chatPresenter"
 
     override fun submitTextMessage(inputTextMessage: String,
-                                   lexServiceContinuation: LexServiceContinuation?) {
+                                   lexServiceContinuation: LexServiceContinuation?,
+                                   hideMessageToWindow: Boolean) {
         lexInteractionClient.cancel()
         if (lexServiceContinuation != null) {
             lexServiceContinuation.continueWithTextInForAudioOut(inputTextMessage)
@@ -42,7 +43,7 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
                     null, null)
         }
         getView()?. let {
-            it.handlerUserResponse(inputTextMessage)
+            if (!hideMessageToWindow) it.handlerUserResponse(inputTextMessage)
             it.showChatProgress(true)
         }
     }
@@ -56,6 +57,9 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
         this.lexInteractionClient.setInteractionListener(this)
         this.lexInteractionClient.setMicrophoneListener(this)
         loadBillData(context)
+        getView()?. let {
+            submitTextMessage(it.getInitIntent(), null, true)
+        }
     }
 
     private fun loadBillData(context: Context) {

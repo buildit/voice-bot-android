@@ -44,8 +44,16 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
 
     companion object {
 
-        fun newInstance(): ChatFragment {
-            return ChatFragment()
+        fun newInstance(intentName: String?): ChatFragment {
+            var initIntent = "Welcome"
+            val instance = ChatFragment()
+            val args = Bundle()
+            if (intentName != null && intentName.isNotEmpty()) {
+                initIntent = intentName
+            }
+            args.putString("intentName", initIntent)
+            instance.arguments = args
+            return instance
         }
     }
 
@@ -66,6 +74,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     private lateinit var voiceBtn: InteractiveVoiceView
     private lateinit var dataCallback: ChatFragmentDataCallback
     private val TAG = "chatFragment"
+    private var initIntent = "Welcome"
 
     @Inject
     internal lateinit var presenter: ChatMVPPresenter<ChatMVPView, ChatMVPInteractor>
@@ -79,6 +88,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        initIntent = arguments?.getString("intentName") ?: "Welcome"
         return inflater.inflate(R.layout.fragment_chat, container, false)
     }
 
@@ -134,7 +144,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
         btnChatSubmit.setOnClickListener {
             inputTextMessage = userTextInput.text.toString()
             if (inputTextMessage.isNotEmpty()) {
-                presenter.submitTextMessage(inputTextMessage, lexServiceContinuation)
+                presenter.submitTextMessage(inputTextMessage, lexServiceContinuation, false)
                 hideKeyboard()
             } else {
                 toggleInputMode(false)
@@ -150,7 +160,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
             updateInputState(inputTextMessage)
             if (inputTextMessage.isNotEmpty() && event.action == KeyEvent.ACTION_DOWN &&
                     keyCode == KeyEvent.KEYCODE_ENTER) {
-                presenter.submitTextMessage(inputTextMessage, lexServiceContinuation)
+                presenter.submitTextMessage(inputTextMessage, lexServiceContinuation, false)
                 hideKeyboard()
                 return@OnKeyListener true
             }
@@ -236,7 +246,19 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
                 } else {
                     scrollToBottom()
                 }
+                if (response.intentName.equals("welcomemessage", true)) {
+                    addWelcomeSuggestions()
+                }
             }
+        }
+    }
+
+    private fun addWelcomeSuggestions() {
+        context?. let {
+            val suggestions = listOf("Pay bills", "Setup autopay", "Setup reminders")
+            messagesListPlaceholder.addView(SuggestionMessageView(it,
+                    "", isUserMessage = false, isAvatarVisible = false,
+                    suggestions = suggestions, messageCallback = this))
         }
     }
 
@@ -305,8 +327,10 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
             for (bill in billsResponse.bills) {
                 if (bill.isSelected) selected.add(bill.billName)
             }
-            presenter.submitTextMessage(selected.joinToString(","), lexServiceContinuation)
-        } else presenter.submitTextMessage(suggestion, lexServiceContinuation)
+            presenter.submitTextMessage(selected.joinToString(","),
+                    lexServiceContinuation, false)
+        } else presenter.submitTextMessage(suggestion,
+                lexServiceContinuation, false)
     }
 
     override fun onSelectBill(position: Int, isSelected: Boolean) {
@@ -316,5 +340,9 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     override fun showChatProgress(inProgress: Boolean) {
         chatLoadingIndicator.isVisible = inProgress
         chatHeaderLogo.isVisible = !inProgress
+    }
+
+    override fun getInitIntent(): String {
+        return initIntent
     }
 }
