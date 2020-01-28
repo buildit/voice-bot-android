@@ -23,4 +23,6 @@ interface ChatMVPPresenter<V : ChatMVPView, I : ChatMVPInteractor> : MVPPresente
     fun submitTextMessage(inputTextMessage: String,
                           lexServiceContinuation: LexServiceContinuation?,
                           hideMessageFromWindow: Boolean)
+
+    fun updateInteractionClient(lexInteractionClient: InteractionClient)
 }

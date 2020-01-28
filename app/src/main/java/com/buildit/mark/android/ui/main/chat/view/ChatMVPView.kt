@@ -18,4 +18,5 @@ interface ChatMVPView : MVPView {
     fun setBillList(response: BillsResponse)
     fun showChatProgress(inProgress: Boolean)
     fun getInitIntent(): String
+    fun toggleAudioPlayback(isAudioEnabled: Boolean)
 }

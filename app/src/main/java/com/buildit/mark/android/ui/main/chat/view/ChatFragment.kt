@@ -208,10 +208,8 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     private fun setLexConfig() {
         interactionConfig = dataCallback.getInteractionConfig()
         awsMobileClient = dataCallback.getAWSMobileClient()
-        lexInteractionClient = InteractionClient(context,
-                AWSMobileClient.getInstance(),
-                Regions.fromName(dataCallback.getAWSRegion()),
-                interactionConfig)
+        lexInteractionClient = InteractionClient(context, awsMobileClient,
+                Regions.fromName(dataCallback.getAWSRegion()), interactionConfig)
         voiceBtn.viewAdapter.setCredentialProvider(awsMobileClient)
         voiceBtn.viewAdapter.setInteractionConfig(interactionConfig)
         voiceBtn.viewAdapter.awsRegion = dataCallback.getAWSRegion()
@@ -243,6 +241,8 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
                         isUserMessage = false, isAvatarVisible = true))
                 if (response.slotToIllicit.equals("billtype", true)) {
                     addBillListView(it1, response)
+                    toggleBtnMode(true)
+                    toggleInputMode(true)
                 } else {
                     scrollToBottom()
                 }
@@ -271,6 +271,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     }
 
     private fun addBillListView(context: Context, response: Response) {
+        clearPreviousWidgets()
         messagesListPlaceholder.addView(BillListMessageView(context, billsResponse, this))
         var message: String = "Do you want me to pay these bills now?"
         if (!response.intentName.equals("billpayment", true)) {
@@ -344,5 +345,13 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
 
     override fun getInitIntent(): String {
         return initIntent
+    }
+
+    override fun toggleAudioPlayback(isAudioEnabled: Boolean) {
+        interactionConfig.isEnableAudioPlayback = isAudioEnabled
+        voiceBtn.viewAdapter.setInteractionConfig(interactionConfig)
+        lexInteractionClient = InteractionClient(context, awsMobileClient,
+                Regions.fromName(dataCallback.getAWSRegion()), interactionConfig)
+        presenter.updateInteractionClient(lexInteractionClient)
     }
 }
