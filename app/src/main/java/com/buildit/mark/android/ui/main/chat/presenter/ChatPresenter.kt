@@ -43,6 +43,7 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
         }
         getView()?. let {
             it.handlerUserResponse(inputTextMessage)
+            it.showChatProgress(true)
         }
     }
 
@@ -75,15 +76,18 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
                 "Dialog ready for fulfillment:\n\tIntent: %s\n\tSlots: %s",
                 intent,
                 slots.toString()))
+        getView()?.showChatProgress(false)
     }
 
     override fun onResponse(response: Response?) {
         Log.d(TAG, "Bot response: " + response?.textResponse)
         Log.d(TAG, "Transcript: " + response?.inputTranscript)
+        getView()?.showChatProgress(false)
     }
 
     override fun onError(responseText: String?, e: Exception?) {
         Log.e(TAG, "Error: $responseText", e)
+        getView()?.showChatProgress(false)
     }
 
     override fun promptUserToRespond(response: Response?, continuation: LexServiceContinuation?) {
@@ -92,15 +96,18 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
             it.clearTextInput()
             it.setLexContinuation(continuation)
             it.handleLexResponse(response)
+            it.showChatProgress(false)
         }
     }
 
     override fun onReadyForFulfillment(response: Response?) {
         Log.e(TAG, "onReadyForFulfillment:")
+        getView()?.showChatProgress(false)
     }
 
     override fun onInteractionError(response: Response?, e: java.lang.Exception?) {
         Log.e(TAG, "onInteractionError:", e)
+        getView()?.showChatProgress(false)
     }
 
     override fun onAudioPlaybackError(e: java.lang.Exception?) {

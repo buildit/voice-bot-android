@@ -33,20 +33,33 @@
                     android:src="@drawable/mark_md"
                     android:scaleType="fitStart"
                     android:layout_centerHorizontal="true"
+                    android:id="@+id/chat_header_logo"
                     android:layout_alignParentTop="true"
                     />
+                <com.airbnb.lottie.LottieAnimationView
+                    android:layout_width="72dp"
+                    android:visibility="gone"
+                    android:id="@+id/chat_loading_indicator"
+                    android:layout_height="60dp"
+                    app:lottie_rawRes="@raw/mark_thinking"
+                    android:scaleType="fitStart"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentTop="true"
+                />
             </RelativeLayout>
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:fillViewport="true"
                 android:id="@+id/messages_scroll_container"
-                android:paddingVertical="10dp"
                 android:layout_weight="1"
             >
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingVertical="10dp"
                     android:orientation="vertical"
                 >
                     <com.mindorks.placeholderview.PlaceHolderView

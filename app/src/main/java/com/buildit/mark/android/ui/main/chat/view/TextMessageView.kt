@@ -35,13 +35,13 @@ class TextMessageView(private val context: Context,
     public fun onResolved() {
         messageText.text = message
         messageAvatar.isVisible = isAvatarVisible
+        var typeface = Typeface.NORMAL
         if (isAvatarVisible) {
             var drawable = R.drawable.mark_sm
             if (isUserMessage) {
                 drawable = R.drawable.ic_person_primary_24dp
-                messageText.setTypeface(messageText.typeface, Typeface.NORMAL)
             } else {
-                messageText.setTypeface(messageText.typeface, Typeface.BOLD)
+                typeface = Typeface.BOLD
             }
             messageAvatar.setImageDrawable(ContextCompat.getDrawable(context, drawable))
         } else {
@@ -51,10 +51,17 @@ class TextMessageView(private val context: Context,
                 messageText.setPadding(dpToPx(70F), 0,dpToPx(10F), 0)
             }
         }
+        var direction = LinearLayout.LAYOUT_DIRECTION_LTR
+        var scaleType = ImageView.ScaleType.FIT_START
+        var alignment = TextView.TEXT_ALIGNMENT_TEXT_START
         if (isUserMessage) {
-            messageContainer.layoutDirection = LinearLayout.LAYOUT_DIRECTION_RTL
-            messageText.textAlignment = TextView.TEXT_ALIGNMENT_TEXT_END
-            if (isAvatarVisible) messageAvatar.scaleType = ImageView.ScaleType.FIT_END
+            direction = LinearLayout.LAYOUT_DIRECTION_RTL
+            alignment = TextView.TEXT_ALIGNMENT_TEXT_END
+            if (isAvatarVisible) scaleType = ImageView.ScaleType.FIT_END
         }
+        messageContainer.layoutDirection = direction
+        messageText.textAlignment = alignment
+        messageAvatar.scaleType = scaleType
+        messageText.setTypeface(messageText.typeface, typeface)
     }
 }

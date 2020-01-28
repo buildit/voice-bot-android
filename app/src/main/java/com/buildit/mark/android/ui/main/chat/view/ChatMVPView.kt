@@ -16,4 +16,5 @@ interface ChatMVPView : MVPView {
     fun clearTextInput()
     fun handlerUserResponse(response: String?)
     fun setBillList(response: BillsResponse)
+    fun showChatProgress(inProgress: Boolean)
 }

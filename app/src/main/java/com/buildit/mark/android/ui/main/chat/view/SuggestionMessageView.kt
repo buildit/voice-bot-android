@@ -23,7 +23,9 @@ class SuggestionMessageView(private val context: Context,
 
     override fun onClick(p0: android.view.View?) {
         if (p0 is TextView) {
+            isSelected = true
             messageCallback.onClickSuggestionPill(p0.text.toString())
+            p0.background = ContextCompat.getDrawable(context, R.drawable.chip_rounded_selected_bg)
         }
     }
 
@@ -42,6 +44,8 @@ class SuggestionMessageView(private val context: Context,
     @JvmField
     @Position
     var position: Int = 0
+
+    var isSelected: Boolean = false
 
     @Resolve
     public fun onResolved() {
@@ -76,7 +80,6 @@ class SuggestionMessageView(private val context: Context,
             lp.setMargins(0, 0, dpToPx(10F), 0)
             textView.layoutParams = lp
             textView.setOnClickListener(this)
-
         }
     }
 }

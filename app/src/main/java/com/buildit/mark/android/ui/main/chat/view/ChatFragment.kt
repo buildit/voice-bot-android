@@ -13,6 +13,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.airbnb.lottie.LottieAnimationView
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobileconnectors.lex.interactionkit.InteractionClient
 import com.amazonaws.mobileconnectors.lex.interactionkit.Response
@@ -48,6 +49,8 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
         }
     }
 
+    private lateinit var chatLoadingIndicator: LottieAnimationView
+    private lateinit var chatHeaderLogo: ImageView
     private lateinit var billsResponse: BillsResponse
     private var lexServiceContinuation: LexServiceContinuation? = null
     private lateinit var messagesListPlaceholder: PlaceHolderView
@@ -104,6 +107,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     }
 
     private fun initView() {
+        //TODO: fix voice button appearance to look like the chat submit button
         voiceBtn = btn_chat_voice as InteractiveVoiceView
         userTextInput = input_chat_message
         btnChatSubmit = btn_chat_submit
@@ -113,6 +117,8 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
         voiceInputContainer = input_voice_container
         chatScrollContainer = messages_scroll_container
         messagesListPlaceholder = messages_list_view
+        chatHeaderLogo = chat_header_logo
+        chatLoadingIndicator = chat_loading_indicator
     }
 
     private fun clipChatContainerEdges() {
@@ -129,6 +135,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
             inputTextMessage = userTextInput.text.toString()
             if (inputTextMessage.isNotEmpty()) {
                 presenter.submitTextMessage(inputTextMessage, lexServiceContinuation)
+                hideKeyboard()
             } else {
                 toggleInputMode(false)
                 toggleBtnMode(false)
@@ -144,6 +151,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
             if (inputTextMessage.isNotEmpty() && event.action == KeyEvent.ACTION_DOWN &&
                     keyCode == KeyEvent.KEYCODE_ENTER) {
                 presenter.submitTextMessage(inputTextMessage, lexServiceContinuation)
+                hideKeyboard()
                 return@OnKeyListener true
             }
             false
@@ -259,12 +267,18 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     private fun scrollToBottom() {
         //TODO: fix scrolling chat container to bottom when new elements have been added
         chatScrollContainer.postDelayed({
-            chatScrollContainer.scrollTo(0, chatScrollContainer.bottom + 250)
-        }, 1000)
+//            chatScrollContainer.scrollTo(0, chatScrollContainer.bottom + 250)
+            chatScrollContainer.fullScroll(ScrollView.FOCUS_DOWN)
+//            chatScrollContainer.scrollBy(0, 500)
+        }, 3000)
     }
 
     override fun clearTextInput() {
         userTextInput.setText("")
+        hideKeyboard()
+    }
+
+    private fun hideKeyboard() {
         context?. let {
             val imm = it.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view?.windowToken, 0)
@@ -297,5 +311,10 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
 
     override fun onSelectBill(position: Int, isSelected: Boolean) {
         billsResponse.bills[position].isSelected = isSelected
+    }
+
+    override fun showChatProgress(inProgress: Boolean) {
+        chatLoadingIndicator.isVisible = inProgress
+        chatHeaderLogo.isVisible = !inProgress
     }
 }
