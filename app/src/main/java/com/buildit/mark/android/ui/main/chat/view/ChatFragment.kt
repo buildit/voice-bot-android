@@ -7,11 +7,9 @@ import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
-import android.widget.ScrollView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.lottie.LottieAnimationView
 import com.amazonaws.mobile.client.AWSMobileClient
@@ -62,7 +60,6 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     private lateinit var billsResponse: BillsResponse
     private var lexServiceContinuation: LexServiceContinuation? = null
     private lateinit var messagesListPlaceholder: PlaceHolderView
-    private lateinit var chatScrollContainer: ScrollView
     private lateinit var inputTextMessage: String
     private lateinit var voiceInputContainer: MaterialCardView
     private lateinit var textInputContainer: MaterialCardView
@@ -73,7 +70,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     private lateinit var lexInteractionClient: InteractionClient
     private lateinit var voiceBtn: InteractiveVoiceView
     private lateinit var dataCallback: ChatFragmentDataCallback
-    private val TAG = "chatFragment"
+    private val fragmentTag = "chatFragment"
     private var initIntent = "Welcome"
 
     @Inject
@@ -100,13 +97,13 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
         setLexConfig()
         setupListeners()
         presenter.onAttach(this)
-        context?. let {
+        context?.let {
             presenter.onViewPrepared(it, voiceBtn, lexInteractionClient)
         }
     }
 
     private fun setupPlaceholderView() {
-        context?. let {
+        context?.let {
 
             messagesListPlaceholder.builder
                     .setHasFixedSize(false)
@@ -125,7 +122,6 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
         chatContainer = chat_container
         textInputContainer = input_text_container
         voiceInputContainer = input_voice_container
-        chatScrollContainer = messages_scroll_container
         messagesListPlaceholder = messages_list_view
         chatHeaderLogo = chat_header_logo
         chatLoadingIndicator = chat_loading_indicator
@@ -153,7 +149,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
             }
         }
         btnChatClose.setOnClickListener {
-            dismissDialog(TAG)
+            dismissDialog(fragmentTag)
         }
         userTextInput.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             inputTextMessage = (v as TextInputEditText).text.toString()
@@ -166,7 +162,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
             }
             false
         })
-        userTextInput.doOnTextChanged { text, start, count, after ->
+        userTextInput.doOnTextChanged { _, _, _, _ ->
             inputTextMessage = userTextInput.text.toString()
             updateInputState(inputTextMessage)
         }
@@ -203,8 +199,6 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
         dataCallback = context as ChatFragmentDataCallback
     }
 
-    internal fun show(fragmentManager: FragmentManager) = super.show(fragmentManager, TAG)
-
     private fun setLexConfig() {
         interactionConfig = dataCallback.getInteractionConfig()
         awsMobileClient = dataCallback.getAWSMobileClient()
@@ -232,19 +226,19 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     }
 
     override fun handleLexResponse(response: Response?) {
-        response?.textResponse?. let {
-            context?.let {it1 ->
+        response?.textResponse?.let { textRsp ->
+            context?.also { ctx ->
                 if (response.dialogState.equals("elicitintent", true)) {
                     clearPreviousWidgets()
                 }
-                messagesListPlaceholder.addView(TextMessageView(it1, it,
-                        isUserMessage = false, isAvatarVisible = true))
+                val messageView = TextMessageView(ctx, textRsp, isUserMessage = false, isAvatarVisible = true)
+                addItemWithScroll(messageView)
                 if (response.slotToIllicit.equals("billtype", true)) {
-                    addBillListView(it1, response)
+                    addBillListView(ctx, response)
                     toggleBtnMode(true)
                     toggleInputMode(true)
                 } else {
-                    scrollToBottom()
+                    messagesListPlaceholder.scrollToBottom()
                 }
                 if (response.intentName.equals("welcomemessage", true)) {
                     addWelcomeSuggestions()
@@ -254,11 +248,17 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     }
 
     private fun addWelcomeSuggestions() {
-        context?. let {
+        context?.let { ctx ->
             val suggestions = listOf("Pay bills", "Setup autopay", "Setup reminders")
-            messagesListPlaceholder.addView(SuggestionMessageView(it,
-                    "", isUserMessage = false, isAvatarVisible = false,
-                    suggestions = suggestions, messageCallback = this))
+            val messageView = SuggestionMessageView(
+                    context = ctx,
+                    message = "",
+                    isUserMessage = false,
+                    isAvatarVisible = false,
+                    suggestions = suggestions,
+                    messageCallback = this
+            )
+            addItemWithScroll(messageView)
         }
     }
 
@@ -272,28 +272,20 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
 
     private fun addBillListView(context: Context, response: Response) {
         clearPreviousWidgets()
-        messagesListPlaceholder.addView(BillListMessageView(context, billsResponse, this))
-        var message: String = "Do you want me to pay these bills now?"
+        val billListMessageView = BillListMessageView(context, billsResponse, this)
+        addItemWithScroll(billListMessageView)
+        var message = "Do you want me to pay these bills now?"
         if (!response.intentName.equals("billpayment", true)) {
             message = "Do you want me to set up autopay for these bills?"
         }
-        messagesListPlaceholder.addView(SuggestionMessageView(context,
-                message,
+        val messageView = SuggestionMessageView(context,
+                message = message,
                 isUserMessage = false,
                 isAvatarVisible = false,
                 suggestions = billsResponse.suggestedActions,
                 messageCallback = this
-        ))
-        scrollToBottom()
-    }
-
-    private fun scrollToBottom() {
-        //TODO: fix scrolling chat container to bottom when new elements have been added
-        chatScrollContainer.postDelayed({
-//            chatScrollContainer.scrollTo(0, chatScrollContainer.bottom + 250)
-            chatScrollContainer.fullScroll(ScrollView.FOCUS_DOWN)
-//            chatScrollContainer.scrollBy(0, 500)
-        }, 3000)
+        )
+        addItemWithScroll(messageView)
     }
 
     override fun clearTextInput() {
@@ -302,20 +294,24 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     }
 
     private fun hideKeyboard() {
-        context?. let {
+        context?.let {
             val imm = it.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view?.windowToken, 0)
         }
     }
 
     override fun handlerUserResponse(response: String?) {
-        response?. let {
-            context?. let {it1 ->
-                messagesListPlaceholder.addView(TextMessageView(it1, it,
-                        isUserMessage = true, isAvatarVisible = true))
-                scrollToBottom()
+        response?.also { rsp ->
+            context?.also { ctx ->
+                val messageView = TextMessageView(ctx, rsp, isUserMessage = true, isAvatarVisible = true)
+                addItemWithScroll(messageView)
             }
         }
+    }
+
+    private fun <T> addItemWithScroll(messageView: T) {
+        messagesListPlaceholder.addView(messageView)
+        messagesListPlaceholder.scrollToBottom()
     }
 
     override fun setBillList(response: BillsResponse) {
@@ -353,5 +349,11 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
         lexInteractionClient = InteractionClient(context, awsMobileClient,
                 Regions.fromName(dataCallback.getAWSRegion()), interactionConfig)
         presenter.updateInteractionClient(lexInteractionClient)
+    }
+}
+
+private fun PlaceHolderView.scrollToBottom() {
+    adapter?.itemCount?.also { count ->
+        if (count - 1 > 0) this.smoothScrollToPosition(count - 1)
     }
 }
