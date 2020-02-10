@@ -1,9 +1,8 @@
 <resources>
-  <string name="app_name">U.S. Bank</string>
-  <string name="email">Email</string>
-  <string name="password">Password</string>
-  <string name="login">Login</string>
-  <string name="logout">Logout</string>
-  <string name="chat_input_hint">Ask my anything…</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="chat_input_hint">Ask my anything…</string>
     <string name="tap_to_select">Tap to select</string>
 </resources>

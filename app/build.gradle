@@ -1,24 +1,21 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
-
 apply plugin: 'kotlin-kapt'
+
+def keystorePropertiesFile = rootProject.file("signing.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+def vCode = (int) (((new Date().getTime() / 1000) - 1580169600) / 100)
 
 android {
     signingConfigs {
-        debug {
-            storeFile file('/Users/ha20107114/work/current/usbank-mvp/com.buildit.mark.android.keystore')
-            storePassword '123456'
-            keyAlias = 'key0'
-            keyPassword '123456'
-        }
         release {
-            storeFile file('/Users/ha20107114/work/current/usbank-mvp/com.buildit.mark.android.keystore')
-            storePassword '123456'
-            keyAlias = 'key0'
-            keyPassword '123456'
+            storeFile file('../com.buildit.mark.android.keystore')
+            storePassword keystoreProperties['singingStorePassword']
+            keyAlias keystoreProperties['signingKeyAlias']
+            keyPassword keystoreProperties['singningKeyPassword']
         }
     }
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -26,23 +23,35 @@ android {
         applicationId "com.buildit.mark.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode vCode
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        signingConfig signingConfigs.debug
     }
     buildTypes {
         debug {
+            applicationIdSuffix ".qa"
+            versionNameSuffix "-QA"
+            resValue "string", "app_name", "U.S. Bank - QA"
             buildConfigField("String", "BASE_URL", "\"http://www.mocky.io/v2\"")
             buildConfigField("String", "API_KEY", "\"ABCXYZ123TEST\"")
         }
         release {
             minifyEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "app_name", "U.S. Bank"
             buildConfigField("String", "BASE_URL", "\"http://www.mocky.io/v2\"")
             buildConfigField("String", "API_KEY", "\"ABCXYZ123TEST\"")
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
@@ -114,8 +123,12 @@ dependencies {
     // Android Kotlin Extension
     implementation "androidx.core:core-ktx:$rootProject.androidKTXVersion"
 
-    implementation ("com.amazonaws:aws-android-sdk-lex:$rootProject.awsVersion@aar") { transitive=true }
-    implementation ("com.amazonaws:aws-android-sdk-mobile-client:$rootProject.awsVersion@aar") { transitive=true }
+    implementation("com.amazonaws:aws-android-sdk-lex:$rootProject.awsVersion@aar") {
+        transitive = true
+    }
+    implementation("com.amazonaws:aws-android-sdk-mobile-client:$rootProject.awsVersion@aar") {
+        transitive = true
+    }
 
     implementation "com.airbnb.android:lottie:$rootProject.lottieVersion"
 }

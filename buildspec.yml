@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      android: 28
+      java: openjdk8
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+      - echo ${SINGNING_KEY_PASSWORD} >> signing.properties
+      - echo ${SINGING_STORE_PASSWORD} >> signing.properties
+      - echo ${SIGNING_KEY_ALIAS} >> signing.properties
+      - echo ${KEYSTORE_BASE64_ENC} | base64 --decode > com.buildit.mark.android.keystore
+  build:
+    commands:
+      - ./gradlew assembleRelease
+
+artifacts:
+  files:
+    - app/build/outputs/apk/release/app-release.apk
