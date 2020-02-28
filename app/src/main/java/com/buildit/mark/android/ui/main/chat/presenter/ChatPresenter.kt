@@ -45,7 +45,7 @@ class ChatPresenter<V : ChatMVPView, I : ChatMVPInteractor> @Inject constructor(
             lexServiceContinuation.continueWithTextInForAudioOut(inputTextMessage)
         } else {
             lexInteractionClient.textInForAudioOut(inputTextMessage,
-                    null, null)
+                    null)
         }
         getView()?. let {
             if (!hideMessageFromWindow) it.handlerUserResponse(inputTextMessage)

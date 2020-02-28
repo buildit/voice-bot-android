@@ -16,9 +16,9 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import com.amazonaws.auth.AWSCredentials
+import com.amazonaws.mobile.auth.core.IdentityHandler
+import com.amazonaws.mobile.auth.core.IdentityManager
 import com.amazonaws.mobile.client.AWSMobileClient
-import com.amazonaws.mobile.client.Callback
-import com.amazonaws.mobile.client.UserStateDetails
 import com.amazonaws.mobileconnectors.lex.interactionkit.config.InteractionConfig
 import com.buildit.mark.android.R
 import com.buildit.mark.android.ui.base.view.BaseActivity
@@ -61,43 +61,34 @@ class MainActivity : BaseActivity(), HasSupportFragmentInjector, ChatFragmentDat
 
     private fun setupLexConfig() {
         awsMobileClient = AWSMobileClient.getInstance()
-        awsMobileClient.initialize(this, object: Callback<UserStateDetails> {
-            override fun onResult(result: UserStateDetails?) {
-                val identityId = awsMobileClient.identityId
-                awsCredentials = awsMobileClient.credentials
-                var botName: String? = null
-                var botAlias: String? = null
-                var lexConfig: JSONObject
-                try {
-                    lexConfig = awsMobileClient.configuration.optJsonObject("Lex")
-                    lexConfig = lexConfig.getJSONObject(lexConfig.keys().next())
+        awsMobileClient.initialize(this) {
+            runOnUiThread {
+                IdentityManager.getDefaultIdentityManager().getUserID(object : IdentityHandler {
+                    override fun handleError(exception: Exception?) {
+                        Log.d("LexError", exception.toString())
+                    }
 
-                    botName = lexConfig.getString("Name")
-                    botAlias = lexConfig.getString("Alias")
-                    botRegion = lexConfig.getString("Region")
-                } catch (e: JSONException) {
-                    Log.e("AWSMobileClient", "onResult: Failed to read configuration", e)
-                }
+                    override fun onIdentityId(identityId: String?) {
+                        var botName: String? = null
+                        var botAlias: String? = null
+                        var lexConfig: JSONObject
+                        try {
+                            lexConfig = awsMobileClient.configuration.optJsonObject("Lex")
+                            lexConfig = lexConfig.getJSONObject(lexConfig.keys().next())
+                            botName = lexConfig.getString("Name")
+                            botAlias = lexConfig.getString("Alias")
+                            botRegion = lexConfig.getString("Region")
+                        } catch (e: JSONException) {
+                            Log.e("AWSMobileClient", "onResult: Failed to read configuration", e)
+                        }
 
 
-                lexInteractionConfig = InteractionConfig(
-                        botName,
-                        botAlias,
-                        identityId)
-                runOnUiThread {
-                    setupBottomBar()
-                }
+                        lexInteractionConfig = InteractionConfig(botName, botAlias, identityId)
+                    }
+                })
             }
-
-            @SuppressLint("ShowToast")
-            override fun onError(e: Exception?) {
-                Log.d("LexError", e.toString())
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Error initializing lex. " +
-                            "Please close the app and try again", Toast.LENGTH_LONG).show()
-                }
-            }
-        })
+        }.execute()
+        setupBottomBar()
     }
 
     private fun setupBottomBar() {

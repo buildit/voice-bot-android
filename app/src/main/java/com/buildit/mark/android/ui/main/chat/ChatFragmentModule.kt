@@ -15,10 +15,10 @@ import dagger.Provides
 class ChatFragmentModule {
 
     @Provides
-    internal fun provideBillInteractor(interactor: ChatInteractor): ChatMVPInteractor = interactor
+    internal fun provideChatInteractor(interactor: ChatInteractor): ChatMVPInteractor = interactor
 
     @Provides
-    internal fun provideBillPresenter(presenter: ChatPresenter<ChatMVPView, ChatMVPInteractor>)
+    internal fun provideChatPresenter(presenter: ChatPresenter<ChatMVPView, ChatMVPInteractor>)
             : ChatMVPPresenter<ChatMVPView, ChatMVPInteractor> = presenter
 
 }

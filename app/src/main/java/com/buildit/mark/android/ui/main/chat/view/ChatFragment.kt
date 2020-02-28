@@ -202,9 +202,9 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     private fun setLexConfig() {
         interactionConfig = dataCallback.getInteractionConfig()
         awsMobileClient = dataCallback.getAWSMobileClient()
-        lexInteractionClient = InteractionClient(context, awsMobileClient,
+        lexInteractionClient = InteractionClient(context, awsMobileClient.credentialsProvider,
                 Regions.fromName(dataCallback.getAWSRegion()), interactionConfig)
-        voiceBtn.viewAdapter.setCredentialProvider(awsMobileClient)
+        voiceBtn.viewAdapter.setCredentialProvider(awsMobileClient.credentialsProvider)
         voiceBtn.viewAdapter.setInteractionConfig(interactionConfig)
         voiceBtn.viewAdapter.awsRegion = dataCallback.getAWSRegion()
         voiceBtn.isEnabled = false
@@ -346,7 +346,7 @@ class ChatFragment : BaseDialogView(), ChatMVPView,
     override fun toggleAudioPlayback(isAudioEnabled: Boolean) {
         interactionConfig.isEnableAudioPlayback = isAudioEnabled
         voiceBtn.viewAdapter.setInteractionConfig(interactionConfig)
-        lexInteractionClient = InteractionClient(context, awsMobileClient,
+        lexInteractionClient = InteractionClient(context, awsMobileClient.credentialsProvider,
                 Regions.fromName(dataCallback.getAWSRegion()), interactionConfig)
         presenter.updateInteractionClient(lexInteractionClient)
     }
